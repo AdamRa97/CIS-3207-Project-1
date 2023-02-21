@@ -8,15 +8,12 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void parseFile();
-
-int opt, unused, ppid, pgrp, session, tty_nr;
-char filename[1000];
-char comm[1000];
-char state;
-
 int main(int argc, char *argv[])
 {
+	int opt, unused, ppid;
+    char filename[1000];
+    char comm[1000];
+    char state;
     
     if (argc == 1)
         printf("No parameters\n");
@@ -26,17 +23,17 @@ int main(int argc, char *argv[])
 		switch(opt)
 		{
 			case 'p':
-                parseFile();
                 printf("pid = %s\n",optarg);
+                sprintf(filename,"/proc/%s/stat",optarg);
+                FILE *f = fopen(filename, "r");
+                fscanf(f, "%d %s %c %d", &unused, comm, &state, &ppid);
                 printf("comm = %s\n", comm);
                 printf("state = %c\n", state);
                 printf("parent pid = %d\n", ppid);
-                printf("pgrp = %d\n",pgrp);
-                printf("session = %d\n",session); 
+                fclose(f);
                 break;
             case 's':
-                parseFile();
-                printf("state = %c\n", state)
+                printf("s\n");
                 break;
             case 'U':
                 printf("U\n");
@@ -54,12 +51,4 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-
-void parseFile(){
-    sprintf(filename,"/proc/%s/stat",optarg);
-    FILE *f = fopen(filename, "r");
-    fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
-    fclose(f);
 }
