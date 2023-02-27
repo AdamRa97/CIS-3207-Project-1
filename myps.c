@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
                 break;
             case 's':
                 parseFile();
-                printf("state = %c\n", state)
+                printf("state = %c\n", state);
                 break;
             case 'U':
                 printf("U\n");
