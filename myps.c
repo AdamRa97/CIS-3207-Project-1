@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void parseFile();
+void parseFile(char *optarg);
 
 int opt, unused, ppid, pgrp, session, tty_nr;
 char filename[1000];
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		switch(opt)
 		{
 			case 'p':
-                parseFile();
+                parseFile(optarg);
                 printf("pid = %s\n",optarg);
                 printf("comm = %s\n", comm);
                 printf("state = %c\n", state);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
                 printf("session = %d\n",session); 
                 break;
             case 's':
-                parseFile();
+                parseFile(optarg);
                 printf("state = %c\n", state);
                 break;
             case 'U':
@@ -57,9 +57,18 @@ int main(int argc, char *argv[])
 }
 
 
-void parseFile(){
-    sprintf(filename,"/proc/%s/stat",optarg);
-    FILE *f = fopen(filename, "r");
-    fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
-    fclose(f);
+void parseFile(char *optarg){
+    if (optarg == NULL){
+        // sprintf(filename,"/proc/1/stat");
+        // FILE *f = fopen(filename, "r");
+        // fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
+        // fclose(f);
+        printf("Hello\n");
+    }
+    else{
+        sprintf(filename,"/proc/%s/stat",optarg);
+        FILE *f = fopen(filename, "r");
+        fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
+        fclose(f);
+    }
 }
