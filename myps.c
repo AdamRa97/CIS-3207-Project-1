@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
         fclose(f);
 
-        FILE *self = fopen("/proc/self/stat", "r");
+        FILE *self = fopen("/proc/%d/stat", "r");
         if (fscanf(self, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %llu", &utime) == 1)
             printf("My utime is: %llu\n", utime);
         fclose(self);
