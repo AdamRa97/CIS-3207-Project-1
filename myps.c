@@ -15,6 +15,7 @@ unsigned long long utime;
 char filename[1000];
 char comm[1000];
 char status_path[1000];
+char stat_path[1000];
 char line[1000];
 char state;
 
@@ -22,6 +23,8 @@ int main(int argc, char *argv[]){
 
     // If there are no flags then just print out everything normally
     if (argc == 1){
+        uid = getuid();
+
         // To enter the '/proc' file
         DIR* dir = opendir("/proc");
         if (dir == NULL){
@@ -30,46 +33,42 @@ int main(int argc, char *argv[]){
         }
 
         struct dirent* entry;
+        struct stat statStruct;
         while ((entry = readdir(dir)) != NULL){
             char* name = entry->d_name;
             // If it's not a PID directory then skip it
             if (name[0] < '0' || name[0] > '9')
                 continue;
 
-            // Read contents of /proc/<PID>/status file
-            snprintf(status_path, sizeof(status_path), "/proc/%s/status", name);
-            FILE* status_file = fopen(status_path, "r");
-            if (status_file == NULL)
-                continue;
-
-            // Extract information from the status file
-            while (fgets(line, sizeof(line), status_file) != NULL){
-                if (strncmp(line, "Uid:", 4) == 0){
-                    sscanf(line + 4, "%*s %d", &uid);
-                    break;
-                }
-            }
-            fclose(status_file);
-
             // Read contents of /proc/<PID>/stat file
-            char stat_path[128];
             snprintf(stat_path, sizeof(stat_path), "/proc/%s/stat", name);
             FILE* stat_file = fopen(stat_path, "r");
-            if (stat_file == NULL) {
-                // Couldn't open file, skip
+            if (stat_file == NULL)
                 continue;
-            }
+
+            if (stat(stat_path, &statStruct) == 1)
+                continue;
+
+            if (statStruct.st_uid != uid)
+                continue;
 
             // Parse the first field (the PID) from the stat file
             fscanf(stat_file, "%d %s %c", &pid, comm, &state);
             fclose(stat_file);
 
-            // Print out information about the process
-            if (uid == getuid())
-                printf("PID: %d, Command: %s, State: %c, UID: %d\n", pid, comm, state, uid);
-        }
+            // Open and read contents of /proc/<PID>/status file
+            snprintf(status_path, sizeof(status_path), "/proc/%s/status", name);
+            FILE* status_file = fopen(status_path, "r");
+            if (status_file == NULL)
+                continue;
+            // fscanf(status_file, "blah blah", test test);
+            
+            fclose(status_file);
 
+            printf("PID:    %d | ",pid);
+            // printf("UTIME:  %llu|\n",utime);
         closedir(dir);
+        }
     }
 
 
