@@ -20,17 +20,17 @@ char line[1000];
 char state;
 
 int main(int argc, char *argv[]){
+    uid = getuid();
+
+    // To enter the '/proc' file
+    DIR* dir = opendir("/proc");
+    if (dir == NULL){
+        perror("opendir");
+        return 1;
+    }
 
     // If there are no flags then just print out everything normally
     if (argc == 1){
-        uid = getuid();
-
-        // To enter the '/proc' file
-        DIR* dir = opendir("/proc");
-        if (dir == NULL){
-            perror("opendir");
-            return 1;
-        }
 
         struct dirent* entry;
         struct stat statStruct;
@@ -66,8 +66,7 @@ int main(int argc, char *argv[]){
             fclose(status_file);
 
             printf("PID:    %d | ",pid);
-            // printf("UTIME:  %llu|\n",utime);
-        closedir(dir);
+            printf("UTIME:  %llu|\n",utime);
         }
     }
 
@@ -110,5 +109,6 @@ int main(int argc, char *argv[]){
 		}
 	}
 
+    closedir(dir);
 	return 0;
 }
