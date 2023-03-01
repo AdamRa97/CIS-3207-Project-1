@@ -10,17 +10,21 @@
 #include <dirent.h>
 #include <string.h>
 
-int opt, unused, pid, ppid, pgrp, session, tty_nr, uid;
-unsigned long long utime;
+int opt, unused, pid, ppid, pgrp, session, tty_nr, uid, seconds, count;
+unsigned long utime;
 char filename[1000];
 char comm[1000];
 char status_path[1000];
+char cmd_path[1000];
+char cmd_line[1000];
 char stat_path[1000];
 char line[1000];
 char state;
+size_t len;
 
 int main(int argc, char *argv[]){
     uid = getuid();
+    count = 0;
 
     // To enter the '/proc' file
     DIR* dir = opendir("/proc");
@@ -43,6 +47,8 @@ int main(int argc, char *argv[]){
             // Read contents of /proc/<PID>/stat file
             snprintf(stat_path, sizeof(stat_path), "/proc/%s/stat", name);
             FILE* stat_file = fopen(stat_path, "r");
+
+            // Error checks, if there is one just iterate to next loop
             if (stat_file == NULL)
                 continue;
 
@@ -52,21 +58,44 @@ int main(int argc, char *argv[]){
             if (statStruct.st_uid != uid)
                 continue;
 
-            // Parse the first field (the PID) from the stat file
-            fscanf(stat_file, "%d %s %c", &pid, comm, &state);
-            fclose(stat_file);
+            // Parsing fields from the stat file
+            fscanf(stat_file, "%d %s %c %*d %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &pid, comm, &state, &utime);
 
-            // Open and read contents of /proc/<PID>/status file
-            snprintf(status_path, sizeof(status_path), "/proc/%s/status", name);
-            FILE* status_file = fopen(status_path, "r");
-            if (status_file == NULL)
+
+            // Reading contents of /proc/<PID>/cmdline file
+            snprintf(cmd_path, sizeof(cmd_path), "/proc/%s/cmdline", name);
+            FILE* cmd_file = fopen(cmd_path, "r");
+            if (cmd_file == NULL)
                 continue;
-            // fscanf(status_file, "blah blah", test test);
-            
-            fclose(status_file);
 
-            printf("PID:    %d | ",pid);
-            printf("UTIME:  %llu|\n",utime);
+            // Looping through the cmdline arguments and replacing each null byte to a new line
+            len = strlen(cmd_line);
+            for(size_t i = 0; i <len; i++){
+                if (cmd_line[i] == '\0')
+                    cmd_line[i] = '\n';
+            }
+
+            // Error checking and also retrieving the information needed
+            if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL)
+                continue;
+
+            // Converting utime into seconds for visualization
+            seconds = (int)utime / sysconf(_SC_CLK_TCK);
+
+            fclose(stat_file);
+            fclose(cmd_file);
+
+
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | UTIME:    %d\n",pid, seconds);
+            if (strcmp(cmd_line,"") == 0){
+                continue;
+            }
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
         }
     }
 
