@@ -3,17 +3,18 @@
 // Lab 01
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
+#include "myps.h"
 
-int opt, unused, pid, ppid, pgrp, session, tty_nr, uid, seconds, count;
+int opt, pid, uid, seconds, count;
 unsigned long utime;
 char filename[1000];
-char comm[1000];
 char status_path[1000];
 char cmd_path[1000];
 char cmd_line[1000];
@@ -21,6 +22,7 @@ char stat_path[1000];
 char line[1000];
 char state;
 size_t len;
+bool p_bool, s_bool, U_bool, S_bool, v_bool, c_bool;
 
 int main(int argc, char *argv[]){
     uid = getuid();
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]){
                 continue;
 
             // Parsing fields from the stat file
-            fscanf(stat_file, "%d %s %c %*d %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &pid, comm, &state, &utime);
+            fscanf(stat_file, "%d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &pid, &state, &utime);
 
 
             // Reading contents of /proc/<PID>/cmdline file
@@ -99,42 +101,35 @@ int main(int argc, char *argv[]){
         }
     }
 
-
     // Going through the flags given via case switches
 	while((opt = getopt(argc, argv, "p:sUSvc")) != -1)
 	{
 		switch(opt)
 		{
 			case 'p':
-                // Accessing the file location and reading through it
-                sprintf(filename,"/proc/%s/stat",optarg);
-                FILE *f = fopen(filename, "r");
-                if (f != NULL)
-                    fscanf(f, "%*d %s %c %d %d %d %d", comm, &state, &ppid, &pgrp, &session, &tty_nr);
-                fclose(f);
-
-                printf("pid = %s\n",optarg);
-                printf("comm = %s\n", comm);
-                printf("state = %c\n", state);
-                printf("parent pid = %d\n", ppid);
-                printf("pgrp = %d\n",pgrp);
-                printf("session = %d\n",session); 
+                p_bool = true;
+                pFlag(optarg, p_bool, s_bool, U_bool, S_bool, v_bool, c_bool);
                 break;
             case 's':
-                // printf("state = %c\n", state);
+                s_bool = true;
                 break;
             case 'U':
+                U_bool = true;
                 printf("U\n");
                 break;
             case 'S':
+                S_bool = true;
                 printf("S\n");
                 break;
             case 'v':
+                v_bool = true;
                 printf("v\n");
                 break;
             case 'c':
+                c_bool = true;
                 printf("c\n");
                 break;
+            // default:
 		}
 	}
 
