@@ -10,12 +10,8 @@
 #include <dirent.h>
 #include <string.h>
 
-<<<<<<< HEAD
 int opt, unused, pid, ppid, pgrp, session, tty_nr, uid;
 unsigned long long utime;
-=======
-int opt, unused, ppid, pgrp, session, tty_nr;
->>>>>>> bec4e624df67d5a969f64e924ad675d0f91a0f17
 char filename[1000];
 char comm[1000];
 char status_path[1000];
@@ -26,7 +22,6 @@ int main(int argc, char *argv[]){
 
     // If there are no flags then just print out everything normally
     if (argc == 1){
-<<<<<<< HEAD
         // To enter the '/proc' file
         DIR* dir = opendir("/proc");
         if (dir == NULL){
@@ -64,18 +59,6 @@ int main(int argc, char *argv[]){
                 // Couldn't open file, skip
                 continue;
             }
-=======
-        // printf("No parameters\n");
-        pid_t curr_pid = getpid();
-        sprintf(filename,"/proc/%d/stat",curr_pid);
-        // FILE *f = fopen(filename, "r");
-        printf("%s",filename);
-        // fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
-        // fclose(f);
-
-        printf("PID:    %d | ", curr_pid);
-        printf("utime:  %d |\n", 1337);
->>>>>>> bec4e624df67d5a969f64e924ad675d0f91a0f17
 
             // Parse the first field (the PID) from the stat file
             fscanf(stat_file, "%d %s %c", &pid, comm, &state);
@@ -97,8 +80,6 @@ int main(int argc, char *argv[]){
 		{
 			case 'p':
                 // Accessing the file location and reading through it
-<<<<<<< HEAD
-
                 sprintf(filename,"/proc/%s/stat",optarg);
                 FILE *f = fopen(filename, "r");
                 if (f != NULL)
@@ -114,23 +95,6 @@ int main(int argc, char *argv[]){
                 break;
             case 's':
                 // printf("state = %c\n", state);
-=======
-                // sprintf(filename,"/proc/%s/stat",optarg);
-                // FILE *f = fopen(filename, "r");
-                // fscanf(f, "%d %s %c %d %d %d %d", &unused, comm, &state, &ppid, &pgrp, &session, &tty_nr);
-                // fclose(f);
-
-
-                // printf("pid = %s\n",optarg);
-                // printf("comm = %s\n", comm);
-                // printf("state = %c\n", state);
-                // printf("parent pid = %d\n", ppid);
-                // printf("pgrp = %d\n",pgrp);
-                // printf("session = %d\n",session); 
-                break;
-            case 's':
-                printf("state = %c\n", state);
->>>>>>> bec4e624df67d5a969f64e924ad675d0f91a0f17
                 break;
             case 'U':
                 printf("U\n");
