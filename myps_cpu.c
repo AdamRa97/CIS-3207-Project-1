@@ -11,12 +11,12 @@
 
     Same technique is used as in Week 3 deliverables to go inside the file / directory
 */
-int main() {
+int main(void) {
     int proc = 0;
     int cache = 0;
     char line[1024];
 
-    // Opening up the file
+    // Opening up the file and checking for errors
     FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
     if (cpuinfo == NULL)
         return -1;
@@ -37,4 +37,3 @@ int main() {
     fclose(cpuinfo);
     return 0;
 }
-

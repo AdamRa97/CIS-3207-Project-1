@@ -84,11 +84,17 @@ Week 2 (MISSED):
 * Code to get the process list  
 ====================================================================================
 ### Process (Week 2)
+* Was pretty simple but slightly frusturating late at night coding
+* Figured I was just gonna cat both meminfo and cpuinfo to see their fields
+   * Once I figured out the fields I just copied and pasted the same code I already had since they're essentially the samething in terms of parsing,
+   just different fields
 
 ### Design Reasons (Week 2)
+* Since I missed the deadlines on Week 2, I just used the same sort of design I used in "myps.c" where I would use FILE, fget(), fopen(), and fclose()
 
 ### Testing and Struggles (Week 2)
-
+* Couldn't figure out for a while on why my Buffer in the meminfo wasn't updating (Late at night 2:28 AM as of typing this)
+* Also struggled a little bit trying to figure out why the processor's weren't updating with each iteration of the while loop (Had to play around with the conditional statements)
 ====================================================================================
 
 Week 3(ON TIME):  
