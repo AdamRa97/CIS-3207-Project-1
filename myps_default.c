@@ -25,7 +25,8 @@
 */
 
 int defFlag(bool s, bool U, bool S, bool v, bool c){
-    int pid, uid, count, mem;
+    int pid, uid, mem;
+    int count = 0;
     unsigned long utime, stime;
     char cmd_path[4096];
     char cmd_line[4096];

@@ -60,7 +60,8 @@ int pFlag(char *optarg, bool s, bool U, bool S, bool v, bool c){
     }
 
     // Error checking and also retrieving the information needed
-    if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL);
+    if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL)
+        ;
 
     // Reading into contents of /proc/<PID>/statm file
     snprintf(statm_path, sizeof(statm_path), "/proc/%s/statm", optarg);
