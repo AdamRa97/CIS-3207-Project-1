@@ -110,7 +110,7 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         // -U
         else if (!s && U && !S && !v && !c){
             // Printing out stuff and also format checking through if else statements
-            printf("PID:    %d |\n",pid);
+            printf("PID:    %d\n",pid);
             if (strcmp(cmd_line,"") == 0){
                 return 1;
             }
@@ -145,6 +145,11 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
                 printf("        [  %d] %s\n", count, cmd_line);
                 count++;
             }
+        }
+        // -c
+        else if (!s && !U && !S && !v && c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | UTIME:    %lu\n",pid, utime);
         }
     }
     closedir(dir);
