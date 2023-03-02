@@ -1,3 +1,8 @@
+// Adam Ra
+// Purpose : A separate C file that is a function for flags without -p
+// Also checks for other boolean values to print corresponding output
+// Lab 01
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -8,17 +13,26 @@
 #include <string.h>
 #include "myps.h"
 
-int pid, uid, count, mem;
-unsigned long utime, stime;
-char cmd_path[1024];
-char cmd_line[1024];
-char stat_path[1024];
-char statm_path[1024];
-char line[1024];
-char state;
-size_t len;
+/* 
+    This function returns a 0 and prints output if all is well, 
+    otherwise it returns a 1
+
+    Takes in the 5 remaining flag booleans
+
+    Since no -p is given, will explore through all the PID's with the matching UID
+
+    Depending on the flag booleans, will print out corresponding output
+*/
 
 int defFlag(bool s, bool U, bool S, bool v, bool c){
+    int pid, uid, count, mem;
+    unsigned long utime, stime;
+    char cmd_path[4096];
+    char cmd_line[4096];
+    char stat_path[4096];
+    char statm_path[4096];
+    char state;
+    size_t len;
     uid = getuid();
 
     // To enter the '/proc' file
@@ -28,6 +42,14 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         return 1;
     }
 
+
+    /*
+        Both structs required to compare UID and to get the PID name.
+
+        Iterates through each file or folder in the /proc directory
+        checks if the name is a number and if so, check if the PID matches the
+        current UID.
+    */
     struct dirent* entry;
     struct stat statStruct;
     while ((entry = readdir(dir)) != NULL){
@@ -70,16 +92,26 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL)
             continue;
 
+        // Reading contents of /proc/<PID>/statm file
         snprintf(statm_path, sizeof(statm_path), "/proc/%s/statm", name);
         FILE* statm_file = fopen(statm_path, "r");
         if (statm_file == NULL)
             continue;
 
+        // Retrieving and storing the mem value
         fscanf(statm_file, "%d", &mem);
 
+        // fclose() cleans up all the memory from fopen()
         fclose(statm_file);
         fclose(stat_file);
         fclose(cmd_file);
+
+
+        /*
+            The rest below are string formatted outputs
+            corresponding to the flags given via boolean values
+        */
+
 
         // No Flags
         if (!s && !U && !S && !v && !c){
@@ -194,21 +226,8 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         }
         // -S
         else if (!s && !U && S && !v && !c){
-                // Printing out stuff and also format checking through if else statements
-                printf("PID:    %d | STIME:    %lu | UTIME:    %lu\n",pid, stime, utime);
-                if (strcmp(cmd_line,"") == 0){
-                    return 1;
-                }
-                else{
-                    printf("Command Line Arguments:\n\n");
-                    printf("        [  %d] %s\n", count, cmd_line);
-                    count++;
-                }
-        }
-        // -v
-        else if (!s && !U && !S && v && !c){
             // Printing out stuff and also format checking through if else statements
-            printf("PID:    %d | virtual mem:    %d | UTIME:    %lu\n",pid, mem, utime);
+            printf("PID:    %d | STIME:    %lu | UTIME:    %lu\n",pid, stime, utime);
             if (strcmp(cmd_line,"") == 0){
                 return 1;
             }
@@ -217,6 +236,44 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
                 printf("        [  %d] %s\n", count, cmd_line);
                 count++;
             }
+        }
+        // -S && -v
+        else if (!s && !U && S && v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | STIME:    %lu | virtual mem:    %d\n",pid, stime, mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -S && -v && -c
+        else if (!s && !U && S && v && c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | STIME:    %lu | virtual mem:    %d\n",pid, stime, mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+        }
+        // -v
+        else if (!s && !U && !S && v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | virtual mem:    %d | UTIME:    %lu\n",pid, mem, utime);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -v && -c
+        else if (!s && !U && !S && v && c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | virtual mem:    %d | UTIME:    %lu\n",pid, mem, utime);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
         }
         // -c
         else if (!s && !U && !S && !v && c){

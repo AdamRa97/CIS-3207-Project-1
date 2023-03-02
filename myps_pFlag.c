@@ -1,3 +1,8 @@
+// Adam Ra
+// Purpose : A separate C file that is a function for flags with -p
+// Also checks for other boolean values to print corresponding output
+// Lab 01
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -8,17 +13,26 @@
 #include <string.h>
 #include "myps.h"
 
-int pid, count, mem;
-unsigned long utime, stime;
-char cmd_path[4096];
-char statm_path[4096];
-char cmd_line[4096];
-char stat_path[4096];
-char line[1024];
-char state;
-size_t len;
+/* 
+    This function returns a 0 and prints output if all is well, 
+    otherwise it returns a 1
 
+    Takes in the specific PID via optarg, and the 5 remaining flag booleans
+
+    With the PID given, can go into all the required /proc files to obtain the
+    information needed to parse
+
+    Depending on the flag booleans, will print out corresponding output
+*/
 int pFlag(char *optarg, bool s, bool U, bool S, bool v, bool c){
+    int pid, count, mem;
+    unsigned long utime, stime;
+    char cmd_path[4096];
+    char statm_path[4096];
+    char cmd_line[4096];
+    char stat_path[4096];
+    char state;
+    size_t len;
     count = 0;
 
     // Read contents of /proc/<PID>/stat file
@@ -30,7 +44,7 @@ int pFlag(char *optarg, bool s, bool U, bool S, bool v, bool c){
         return 1;
 
     // Parsing fields from the stat file
-    fscanf(stat_file, "%d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &pid, &state, &utime);
+    fscanf(stat_file, "%d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu", &pid, &state, &utime, &stime);
 
     // Reading contents of /proc/<PID>/cmdline file
     snprintf(cmd_path, sizeof(cmd_path), "/proc/%s/cmdline", optarg);
@@ -48,16 +62,26 @@ int pFlag(char *optarg, bool s, bool U, bool S, bool v, bool c){
     // Error checking and also retrieving the information needed
     if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL);
 
+    // Reading into contents of /proc/<PID>/statm file
     snprintf(statm_path, sizeof(statm_path), "/proc/%s/statm", optarg);
     FILE* statm_file = fopen(statm_path, "r");
     if (statm_file == NULL)
         return 1;
 
+    // Retrieving the virtual memory and storing it
     fscanf(statm_file, "%d", &mem);
 
+    // fclose() cleans up all resources from fopen(), so no need to utilize free()
     fclose(statm_file);
     fclose(stat_file);
     fclose(cmd_file);
+
+
+    /* 
+        The rest below are just string formatted outputs depending
+        on the boolean values paired up with -p
+    */
+
 
     // -p
     if (!s && !U && !S && !v && !c){
