@@ -8,10 +8,8 @@
 #include <string.h>
 #include "myps.h"
 
-int opt, pid, uid, count, mem;
+int pid, uid, count, mem;
 unsigned long utime, stime;
-char filename[1024];
-char status_path[1024];
 char cmd_path[1024];
 char cmd_line[1024];
 char stat_path[1024];
@@ -21,6 +19,8 @@ char state;
 size_t len;
 
 int defFlag(bool s, bool U, bool S, bool v, bool c){
+    uid = getuid();
+
     // To enter the '/proc' file
     DIR* dir = opendir("/proc");
     if (dir == NULL){
@@ -85,9 +85,8 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         if (!s && !U && !S && !v && !c){
                 // Printing out stuff and also format checking through if else statements
                 printf("PID:    %d | UTIME:    %lu\n",pid, utime);
-                if (strcmp(cmd_line,"") == 0){
+                if (strcmp(cmd_line,"") == 0)
                     return 1;
-                }
                 else{
                     printf("Command Line Arguments:\n\n");
                     printf("        [  %d] %s\n", count, cmd_line);
@@ -98,14 +97,56 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         else if (s && !U && !S && !v && !c){
             // Printing out stuff and also format checking through if else statements
             printf("PID:    %d | Process State: %c | UTIME:    %lu\n",pid, state, utime);
-            if (strcmp(cmd_line,"") == 0){
+            if (strcmp(cmd_line,"") == 0)
                 return 1;
-            }
             else{
                 printf("Command Line Arguments:\n\n");
                 printf("        [  %d] %s\n", count, cmd_line);
                 count++;
             }
+        }
+        // -s && -U
+        else if (s && U && !S && !v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | Process State: %c\n",pid, state);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -s && -U && -S
+        else if (s && U && S && !v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | Process State: %c | STIME:    %lu\n",pid, state,stime);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -s && -U && -S && -v
+        else if (s && U && S && v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | Process State: %c | STIME:    %lu | virtual mem:    %d\n",pid, state,stime,mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -s && -U && -S && -v && -c
+        else if (s && U && S && v && c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | Process State: %c | STIME:    %lu | virtual mem:    %d\n",pid, state,stime,mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
         }
         // -U
         else if (!s && U && !S && !v && !c){
@@ -119,6 +160,37 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
                 printf("        [  %d] %s\n", count, cmd_line);
                 count++;
             }
+        }
+        // -U && -S
+        else if (!s && U && S && !v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | STIME:    %lu\n",pid, stime);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -U && -S && -v
+        else if (!s && U && S && v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | STIME:    %lu | virtual mem:    %d\n",pid, stime,mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -U && -S && -v && -c
+        else if (!s && U && S && v && c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | STIME:    %lu | virtual mem:    %d\n",pid, stime,mem);
+            if (strcmp(cmd_line,"") == 0)
+                return 1;
         }
         // -S
         else if (!s && !U && S && !v && !c){

@@ -14,7 +14,8 @@
 #include "myps.h"
 
 int main(int argc, char *argv[]){
-    int pid,opt;
+    int opt;
+    char pid[1024];
     bool p_bool, s_bool, U_bool, S_bool, v_bool, c_bool = false;
 
     // Going through the flags given via case switches
@@ -23,7 +24,7 @@ int main(int argc, char *argv[]){
 		switch(opt)
 		{
 			case 'p':
-                pid = atoi(optarg);
+                sprintf(pid, "%s",optarg);
                 p_bool = true;
                 break;
             case 's':
