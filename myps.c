@@ -47,20 +47,11 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-    // Default flag
-    if (!p_bool && !s_bool && !U_bool && !S_bool && !v_bool && !c_bool)
+    // If there is no p flag
+    if (!p_bool)
         defFlag(s_bool,U_bool,S_bool,v_bool,c_bool);
-    // -s
-    else if (!p_bool && s_bool && !U_bool && !S_bool && !v_bool && !c_bool)
-        defFlag(s_bool,U_bool,S_bool,v_bool,c_bool);
-    // -U
-    else if (!p_bool && !s_bool && U_bool && !S_bool && !v_bool && !c_bool)
-        defFlag(s_bool,U_bool,S_bool,v_bool,c_bool);
-    // -p
-    else if (p_bool && !s_bool && !U_bool && !S_bool && !v_bool && !c_bool)
-        pFlag(pid,s_bool,U_bool,S_bool,v_bool,c_bool);
-    // -p && -s
-    else if (p_bool && s_bool && !U_bool && !S_bool && !v_bool && !c_bool)
+    // If there is a p flag
+    else
         pFlag(pid,s_bool,U_bool,S_bool,v_bool,c_bool);
 
 	return 0;

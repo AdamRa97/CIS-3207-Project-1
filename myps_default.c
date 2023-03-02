@@ -8,14 +8,15 @@
 #include <string.h>
 #include "myps.h"
 
-int opt, pid, uid, seconds, count;
-unsigned long utime;
-char filename[1000];
-char status_path[1000];
-char cmd_path[1000];
-char cmd_line[1000];
-char stat_path[1000];
-char line[1000];
+int opt, pid, uid, count, mem;
+unsigned long utime, stime;
+char filename[1024];
+char status_path[1024];
+char cmd_path[1024];
+char cmd_line[1024];
+char stat_path[1024];
+char statm_path[1024];
+char line[1024];
 char state;
 size_t len;
 
@@ -50,8 +51,7 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
             continue;
 
         // Parsing fields from the stat file
-        fscanf(stat_file, "%d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &pid, &state, &utime);
-
+        fscanf(stat_file, "%d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu", &pid, &state, &utime, &stime);
 
         // Reading contents of /proc/<PID>/cmdline file
         snprintf(cmd_path, sizeof(cmd_path), "/proc/%s/cmdline", name);
@@ -70,16 +70,21 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         if (fgets(cmd_line, sizeof(cmd_line), cmd_file) == NULL)
             continue;
 
-        // Converting utime into seconds for visualization
-        seconds = (int)utime / sysconf(_SC_CLK_TCK);
+        snprintf(statm_path, sizeof(statm_path), "/proc/%s/statm", name);
+        FILE* statm_file = fopen(statm_path, "r");
+        if (statm_file == NULL)
+            continue;
 
+        fscanf(statm_file, "%d", &mem);
+
+        fclose(statm_file);
         fclose(stat_file);
         fclose(cmd_file);
 
-        // Default
+        // No Flags
         if (!s && !U && !S && !v && !c){
                 // Printing out stuff and also format checking through if else statements
-                printf("PID:    %d | UTIME:    %d\n",pid, seconds);
+                printf("PID:    %d | UTIME:    %lu\n",pid, utime);
                 if (strcmp(cmd_line,"") == 0){
                     return 1;
                 }
@@ -92,7 +97,7 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         // -s
         else if (s && !U && !S && !v && !c){
             // Printing out stuff and also format checking through if else statements
-            printf("PID:    %d | Process State: %c | UTIME:    %d\n",pid, state, seconds);
+            printf("PID:    %d | Process State: %c | UTIME:    %lu\n",pid, state, utime);
             if (strcmp(cmd_line,"") == 0){
                 return 1;
             }
@@ -106,6 +111,32 @@ int defFlag(bool s, bool U, bool S, bool v, bool c){
         else if (!s && U && !S && !v && !c){
             // Printing out stuff and also format checking through if else statements
             printf("PID:    %d |\n",pid);
+            if (strcmp(cmd_line,"") == 0){
+                return 1;
+            }
+            else{
+                printf("Command Line Arguments:\n\n");
+                printf("        [  %d] %s\n", count, cmd_line);
+                count++;
+            }
+        }
+        // -S
+        else if (!s && !U && S && !v && !c){
+                // Printing out stuff and also format checking through if else statements
+                printf("PID:    %d | STIME:    %lu | UTIME:    %lu\n",pid, stime, utime);
+                if (strcmp(cmd_line,"") == 0){
+                    return 1;
+                }
+                else{
+                    printf("Command Line Arguments:\n\n");
+                    printf("        [  %d] %s\n", count, cmd_line);
+                    count++;
+                }
+        }
+        // -v
+        else if (!s && !U && !S && v && !c){
+            // Printing out stuff and also format checking through if else statements
+            printf("PID:    %d | virtual mem:    %d | UTIME:    %lu\n",pid, mem, utime);
             if (strcmp(cmd_line,"") == 0){
                 return 1;
             }
